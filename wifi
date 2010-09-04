@@ -1,0 +1,62 @@
+#!/bin/ksh
+#
+# wifi - Connect to wifi spots in OpenBSD.
+#
+# usage: wifi [-n] nwid
+#        wifi [-n] -w wpakey nwid
+#        wifi -r
+Script=${0##*/}
+
+Nflag=false
+Resetflag=false
+Wpaflag=false
+
+#set -x
+function usage
+{
+    echo "usage: $Script [-r] [-w wpakey] nwid
+	    -h : this help message
+            -n : don't try dhcp
+            -r : reset the interface
+	    -w : specify the wpa2 key"
+    exit 1
+}
+
+while getopts rw: Opt
+do
+	case "$Opt" in
+		n) Nflag=true;;
+		r) Resetflag=true;;
+		w) Wpaflag="$OPTARG";;
+		\?) usage;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# -eq 0 -a ! $Resetflag ]
+then
+	usage
+fi
+
+Nwid="$1"
+
+if $Resetflag
+then
+	sudo ifconfig iwn0 -bssid -chan media autoselect \
+                nwid \"\" -nwkey -wpa -wpapsk
+	exit 0
+fi
+
+if [ $Wpaflag != false ]
+then
+	sudo ifconfig iwn0 nwid "$Nwid" wpa wpapsk $(wpa-psk "$Nwid" "$Wpaflag")
+else
+	sudo ifconfig iwn0 nwid "$Nwid"
+fi
+
+if ! $Nflag
+then
+	sudo dhclient iwn0
+fi
+
+exit $?
