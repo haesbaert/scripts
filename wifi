@@ -10,12 +10,14 @@ Script=${0##*/}
 Nflag=false
 Resetflag=false
 Wpaflag=false
+Interface=""
 
 #set -x
 function usage
 {
     echo "usage: $Script [-r] [-w wpakey] nwid
 	    -h : this help message
+	    -i : specify the interface
             -n : don't try dhcp
             -r : reset the interface
 	    -w : specify the wpa2 key"
@@ -25,6 +27,7 @@ function usage
 while getopts rw: Opt
 do
 	case "$Opt" in
+		i) Interface="$OPTARG";;
 		n) Nflag=true;;
 		r) Resetflag=true;;
 		w) Wpaflag="$OPTARG";;
@@ -39,24 +42,28 @@ then
 fi
 
 Nwid="$1"
+if [ -z "$Interface" ]
+then
+	Interface=`ifconfig wlan 2>/dev/null | (IFS=: read INT REST; echo $INT)`
+fi
 
 if $Resetflag
 then
-	sudo ifconfig iwn0 -bssid -chan media autoselect \
+	sudo ifconfig "$Interface" -bssid -chan media autoselect \
                 nwid \"\" -nwkey -wpa -wpapsk
 	exit 0
 fi
 
 if [ $Wpaflag != false ]
 then
-	sudo ifconfig iwn0 nwid "$Nwid" wpa wpapsk $(wpa-psk "$Nwid" "$Wpaflag")
+	sudo ifconfig "$Interface" nwid "$Nwid" wpa wpapsk $(wpa-psk "$Nwid" "$Wpaflag")
 else
-	sudo ifconfig iwn0 nwid "$Nwid"
+	sudo ifconfig "$Interface" nwid "$Nwid"
 fi
 
 if ! $Nflag
 then
-	sudo dhclient iwn0
+	sudo dhclient "$Interface"
 fi
 
 exit $?
