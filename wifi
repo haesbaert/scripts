@@ -50,7 +50,7 @@ fi
 if $Resetflag
 then
 	sudo ifconfig "$Interface" -bssid -chan media autoselect \
-                nwid \"\" -nwkey -wpa -wpapsk
+                -nwid -nwkey -wpa -wpapsk
 	exit 0
 fi
 
