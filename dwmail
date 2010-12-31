@@ -5,6 +5,7 @@
 #
 # usage: dwmail
 
+set -x
 Script=${0##*/}
 
 # Check for notify-send binary
@@ -18,12 +19,13 @@ fi
 while true
 do
 	Line=$(getmail | tail -n 1)
-	Newmail=$(echo "$Line" | cut -d ' ' -f 2)
-	echo 
-	Bytes=$(echo "$Line" | cut -d ' ' -f 5 | sed 's/(//g')
-	if [ $Newmail -gt 0 ]
+	Word=$(echo $Line | cut -d ' ' -f 1)
+	if [ "$Word" == Retrieved ]
 	then
-		notify-send -t 10000 "You have $Newmail new messages ($Bytes bytes)"
+		Newmail=$(echo "$Line" | cut -d ' ' -f 2)
+		Bytes=$(echo "$Line" | cut -d ' ' -f 4 | sed 's/(//g')
+		notify-send -t 10000 \
+			"You have $Newmail new messages ($Bytes bytes)"
 	fi
 
 	sleep 300
