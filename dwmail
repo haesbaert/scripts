@@ -5,7 +5,6 @@
 #
 # usage: dwmail
 
-set -x
 Script=${0##*/}
 
 # Check for notify-send binary
