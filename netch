@@ -1,0 +1,44 @@
+#!/bin/ksh
+#
+# netch - Change network params.
+#
+# usage: netch
+#set -x
+Script=${0##*/}
+
+if test $(whoami) != root; then
+	echo Must be root
+	exit 1
+fi
+	
+networks="HOME HOME-WIFI PUCRS"
+
+PS3="Choose network: "
+select net in $networks
+do
+	case $net in
+	HOME)
+		dhclient em0
+		exit $?
+		;;
+	HOME-WIFI)
+		TODO
+		exit 1
+		;;
+	PUCRS)
+		echo Bringing wifi up...
+		if ! wifi -w pucrs2006 PUCRS; then
+			echo Wifi link error
+			exit 1
+		fi
+		echo Bringing openvpn up...
+		openvpn --daemon --config /etc/openvpn/static-elendil.conf
+
+		exit 0
+		;;
+	*)
+		echo Invalid choice;;
+	esac
+done
+	
+	     	 
