@@ -27,5 +27,5 @@ do
 			"You have $Newmail new messages ($Bytes bytes)"
 	fi
 
-	sleep 300
+	sleep 180
 done
