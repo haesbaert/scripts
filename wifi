@@ -5,6 +5,7 @@
 # usage: wifi [-n] nwid
 #        wifi [-n] -w wpakey nwid
 #        wifi -r
+#set -x
 Script=${0##*/}
 
 Nflag=false
@@ -12,7 +13,12 @@ Resetflag=false
 Wpaflag=false
 Interface=""
 
-#set -x
+# we must be root
+if test $(whoami) != root; then
+	sudo $0
+	exit $?
+fi
+
 function usage
 {
     echo "usage: $Script [-r] [-w wpakey] nwid
@@ -49,21 +55,21 @@ fi
 
 if $Resetflag
 then
-	sudo ifconfig "$Interface" -bssid -chan media autoselect \
+	ifconfig "$Interface" -bssid -chan media autoselect \
                 -nwid -nwkey -wpa -wpapsk
 	exit 0
 fi
 
 if [ $Wpaflag != false ]
 then
-	sudo ifconfig "$Interface" nwid "$Nwid" wpa wpapsk $(wpa-psk "$Nwid" "$Wpaflag")
+	ifconfig "$Interface" nwid "$Nwid" wpa wpapsk $(wpa-psk "$Nwid" "$Wpaflag")
 else
-	sudo ifconfig "$Interface" nwid "$Nwid"
+	ifconfig "$Interface" nwid "$Nwid"
 fi
 
 if ! $Nflag
 then
-	sudo dhclient "$Interface"
+	dhclient "$Interface"
 fi
 
 exit $?

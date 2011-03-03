@@ -7,8 +7,8 @@
 Script=${0##*/}
 
 if test $(whoami) != root; then
-	echo Must be root
-	exit 1
+	sudo $0
+	exit $?
 fi
 	
 networks="HOME HOME-WIFI PUCRS"
@@ -22,8 +22,10 @@ do
 		exit $?
 		;;
 	HOME-WIFI)
-		TODO
-		exit 1
+		echo -n Password:
+		read pass
+		wifi -w "$pass" haesbaert
+		exit $?
 		;;
 	PUCRS)
 		echo Bringing wifi up...
@@ -34,7 +36,7 @@ do
 		echo Bringing openvpn up...
 		openvpn --daemon --config /etc/openvpn/static-elendil.conf
 
-		exit 0
+		exit $?
 		;;
 	*)
 		echo Invalid choice;;
