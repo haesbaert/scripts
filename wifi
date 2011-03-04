@@ -15,7 +15,7 @@ Interface=""
 
 # we must be root
 if test $(whoami) != root; then
-	sudo $0
+	sudo $0 $@
 	exit $?
 fi
 
@@ -48,6 +48,7 @@ then
 fi
 
 Nwid="$1"
+
 if [ -z "$Interface" ]
 then
 	Interface=`ifconfig wlan 2>/dev/null | (IFS=: read INT REST; echo $INT)`
