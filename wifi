@@ -63,7 +63,7 @@ fi
 
 if [ $Wpaflag != false ]
 then
-	ifconfig "$Interface" nwid "$Nwid" wpa wpapsk $(wpa-psk "$Nwid" "$Wpaflag")
+	ifconfig "$Interface" nwid "$Nwid" wpa wpapsk "$Wpaflag"
 else
 	ifconfig "$Interface" nwid "$Nwid"
 fi
