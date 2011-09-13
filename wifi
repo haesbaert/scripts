@@ -57,13 +57,13 @@ fi
 if $Resetflag
 then
 	ifconfig "$Interface" -bssid -chan media autoselect \
-                -nwid -nwkey -wpa -wpapsk
+                -nwid -nwkey -wpa -wpakey
 	exit 0
 fi
 
 if [ $Wpaflag != false ]
 then
-	ifconfig "$Interface" nwid "$Nwid" wpa wpapsk "$Wpaflag"
+	ifconfig "$Interface" nwid "$Nwid" wpa wpakey "$Wpaflag"
 else
 	ifconfig "$Interface" nwid "$Nwid"
 fi
