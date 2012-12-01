@@ -1,0 +1,51 @@
+#!/bin/ksh
+
+#set -x
+
+Script=${0##*/}
+
+force=false
+klocal=${klocal:=/d/src/sys/arch/$(arch -s)/compile/GENERIC.MP/bsd}
+kremote=${kremote:=/kern/${klocal##*/}}
+
+while getopts f Opt
+do
+	case "$Opt" in
+		f) force=true;;
+		\?) return;;
+	esac
+done
+shift $(expr $OPTIND - 1)
+
+for host in $@
+do
+	if ! $force && \
+		test "$(md5 -q $klocal)" == "$(ssh $host md5 -q $kremote)"; then
+		echo files are identical, nothing done.
+		return
+	fi
+	ssh $host "test -f $kremote && cp $kremote $kremote.old && \
+echo $kremote saved to $kremote.old"
+
+	scp $klocal $host:$kremote > /dev/null || return
+	echo sent $klocal to $kremote
+
+	bootfile=$(mktemp) || return
+	if $(scp $host:/etc/boot.conf $bootfile > /dev/null); then
+		cp $bootfile $bootfile.old || return
+		sed '/^set image/d' $bootfile.old > $bootfile
+	fi
+	echo "set image ${kremote}" >> $bootfile
+
+	scp $bootfile $host:/etc/boot.conf >/dev/null && \
+		scp $bootfile.old $host:/etc/boot.conf.old > /dev/null
+	test $? || return
+	echo
+	echo bootfile:
+	cat $bootfile
+	rm $bootfile $bootfile.old
+
+	echo rebooting...
+	#ssh $host /sbin/shutdown -r now
+done
+
