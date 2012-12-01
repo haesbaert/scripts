@@ -15,7 +15,7 @@ Interface=""
 
 # we must be root
 if test $(whoami) != root; then
-	sudo $0 $@
+	sudo "$0" "$@"
 	exit $?
 fi
 
